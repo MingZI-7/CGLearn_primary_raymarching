@@ -239,6 +239,7 @@ MonoBehaviour:
   _degreeRotate: 43.3
   _ReflectionCount: 2
   _ReflectionIntensity: 1
+  _ReflectionAttenuation: 0.208
   _EnvRefIntensity: 0.278
   _ReflectionCube: {fileID: 8900000, guid: 92956b3a016249a4fb90531cd0f6db96, type: 3}
   _sphere1: {x: 0, y: 1, z: 0, w: 3}

@@ -59,8 +59,9 @@ public class RaymarchCamera : SceneViewFilter
     public float _degreeRotate;
 
     [Header("Reflection")]
-    [Range(0, 2)] public int _ReflectionCount;
+    [Range(0, 5)] public int _ReflectionCount;
     [Range(0, 1)] public float _ReflectionIntensity;
+    [Range(0, 1)] public float _ReflectionAttenuation;
     [Range(0, 1)] public float _EnvRefIntensity;
     public Cubemap _ReflectionCube;
 
@@ -102,6 +103,7 @@ public class RaymarchCamera : SceneViewFilter
 
         _raymarchMaterial.SetInt("_ReflectionCount", _ReflectionCount);
         _raymarchMaterial.SetFloat("_ReflectionIntensity", _ReflectionIntensity);
+        _raymarchMaterial.SetFloat("_ReflectionAttenuation", _ReflectionAttenuation);
         _raymarchMaterial.SetFloat("_EnvRefIntensity", _EnvRefIntensity);
         _raymarchMaterial.SetTexture("_ReflectionCube", _ReflectionCube);
 

@@ -49,6 +49,7 @@ Shader "Rigel/RayMarching"
             // reflection
             uniform int _ReflectionCount;
             uniform float _ReflectionIntensity;
+            uniform float _ReflectionAttenuation;
             uniform float _EnvRefIntensity;
             uniform samplerCUBE _ReflectionCube;
             // sdf
@@ -230,31 +231,57 @@ Shader "Rigel/RayMarching"
                     float3 s = Shading(hitPosition, n);
                     result = fixed4(s, 1);
                     result += fixed4(texCUBE(_ReflectionCube, n).rgb * _EnvRefIntensity * _ReflectionIntensity, 0);
-                    // Reflection
-                    if(_ReflectionCount > 0)
+                    
+                    // reflection loop
+                    for(int i = 1; i <= _ReflectionCount; ++i)
                     {
                         rayDirection = normalize(reflect(rayDirection, n));
                         rayOrigin = hitPosition + (rayDirection * 0.01);
-                        hit = raymarching(rayOrigin, rayDirection, depth, _maxDistance * 0.5, _maxIteration/2, hitPosition);
+
+                        hit = raymarching(rayOrigin, rayDirection, depth, 
+                            _maxDistance * i * _ReflectionAttenuation,
+                            _maxIteration * i * 0.5,
+                            hitPosition);
+
                         if(hit)
                         {
-                            float3 n = getNormal(hitPosition);
-                            float3 s = Shading(hitPosition, n);
-                            result += fixed4(s * _ReflectionIntensity, 0);
-                            if(_ReflectionCount > 1)
-                            {
-                                rayDirection = normalize(reflect(rayDirection, n));
-                                rayOrigin = hitPosition + (rayDirection * 0.01);
-                                hit = raymarching(rayOrigin, rayDirection, depth, _maxDistance * 0.25, _maxIteration/4, hitPosition);
-                                if(hit)
-                                {
-                                    float3 n = getNormal(hitPosition);
-                                    float3 s = Shading(hitPosition, n);
-                                    result += fixed4(s * _ReflectionIntensity * 0.5, 0);
-                                }
-                            }
+                            // shading
+                            n = getNormal(hitPosition);
+                            s = Shading(hitPosition, n);
+                            result += fixed4(s * _ReflectionIntensity * i * _ReflectionAttenuation, 0);
+                        }
+                        else
+                        {
+                            break;
                         }
                     }
+
+
+                    // Reflection
+                    // if(_ReflectionCount > 0)
+                    // {
+                    //     rayDirection = normalize(reflect(rayDirection, n));
+                    //     rayOrigin = hitPosition + (rayDirection * 0.01);
+                    //     hit = raymarching(rayOrigin, rayDirection, depth, _maxDistance * 0.5, _maxIteration/2, hitPosition);
+                    //     if(hit)
+                    //     {
+                    //         float3 n = getNormal(hitPosition);
+                    //         float3 s = Shading(hitPosition, n);
+                    //         result += fixed4(s * _ReflectionIntensity, 0);
+                    //         if(_ReflectionCount > 1)
+                    //         {
+                    //             rayDirection = normalize(reflect(rayDirection, n));
+                    //             rayOrigin = hitPosition + (rayDirection * 0.01);
+                    //             hit = raymarching(rayOrigin, rayDirection, depth, _maxDistance * 0.25, _maxIteration/4, hitPosition);
+                    //             if(hit)
+                    //             {
+                    //                 float3 n = getNormal(hitPosition);
+                    //                 float3 s = Shading(hitPosition, n);
+                    //                 result += fixed4(s * _ReflectionIntensity * 0.5, 0);
+                    //             }
+                    //         }
+                    //     }
+                    // }
                 }
                 else // miss
                 {
